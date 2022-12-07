@@ -35,6 +35,7 @@ const cookieParser = require('cookie-parser');
 const md5 = require('md5');
 const { ApiError, Client, Environment } = require('square');
 const app = express();
+const crypto = require('crypto')
 app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
@@ -86,9 +87,8 @@ const scopes = [
  *  Serves the link that merchants click to authorize your application
  */
 app.get("/request_token", (req, res) => {
-  // Set the Auth_State cookie with a random md5 string to protect against cross-site request forgery.
   // Auth_State will expire in 300 seconds (5 mins) after the page is loaded.
-  var state = md5(Date.now())
+  var state = crypto.randomBytes(32).toString('hex');
   var url = basePath + `/oauth2/authorize?client_id=${process.env.SQ_APPLICATION_ID}&` + `response_type=code&` + `scope=${scopes.join('+')}` + `&state=` + state
   content = `
     <link type="text/css" rel="stylesheet" href="style.css">
